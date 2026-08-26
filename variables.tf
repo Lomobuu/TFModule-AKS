@@ -1,3 +1,5 @@
+### Core
+
 variable "name" {
   description = "Name of the Managed Kubernetes Cluster (AKS)."
   type        = string
@@ -12,6 +14,14 @@ variable "resource_group_name" {
   description = "Resource group where the cluster is created."
   type        = string
 }
+
+variable "tags" {
+  description = "Tags applied to the cluster."
+  type        = map(string)
+  default     = {}
+}
+
+### Default (system) node pool
 
 variable "default_node_pool" {
   description = "Configuration for the system (default) node pool. Required by AKS."
@@ -48,15 +58,17 @@ variable "node_provisioning_profile" {
   })
   default = {}
 
-  validation {
-    condition     = contains(["Manual", "Auto"], var.node_provisioning_profile.mode)
-    error_message = "node_provisioning_profile.mode must be either \"Manual\" or \"Auto\"."
-  }
+validation {
+  condition = (
+    var.node_provisioning_profile == null
+    ? true
+    : contains(["Manual", "Auto"], var.node_provisioning_profile.mode)
+  )
+  error_message = "node_provisioning_profile.mode must be either \"Manual\" or \"Auto\"."
+}
 }
 
-########################################
-# DNS: exactly one of the two (required)
-########################################
+### DNS: exactly one of the two (required)
 
 variable "dns_prefix" {
   description = "DNS prefix for a public cluster. Set this OR dns_prefix_private_cluster, not both."
@@ -70,9 +82,7 @@ variable "dns_prefix_private_cluster" {
   default     = null
 }
 
-########################################
-# Identity: exactly one of the two (required)
-########################################
+### Identity: exactly one of the two (required)
 
 variable "identity" {
   description = "Managed identity block. Use this OR service_principal. type = SystemAssigned | UserAssigned."
@@ -95,7 +105,7 @@ variable "service_principal" {
   sensitive = true
 }
 
-### Optional  toggles
+### Feature  toggles
 
 variable "aad_rbac_enabled" {
   description = "Enable Azure AD (Entra ID) integration for Kubernetes RBAC. Default true."
@@ -146,18 +156,6 @@ variable "oidc_issuer_enabled" {
   default     = true
 }
 
-variable "workload_identity_enabled" {
-  description = "Enable Azure AD Workload Identity. Requires oidc_issuer_enabled = true. Default true."
-  type        = bool
-  default     = true
-}
-
-variable "role_based_access_control_enabled" {
-  description = "Enable Kubernetes RBAC. Default true."
-  type        = bool
-  default     = true
-}
-
 variable "sku_tier" {
   description = "Control-plane SKU tier: Free, Standard or Premium. Default Free."
   type        = string
@@ -169,8 +167,17 @@ variable "sku_tier" {
   }
 }
 
-variable "tags" {
-  description = "Tags applied to the cluster."
-  type        = map(string)
-  default     = {}
+
+### Entra ID (AAD) integration for Kubernetes RBAC
+
+variable "workload_identity_enabled" {
+  description = "Enable Azure AD Workload Identity. Requires oidc_issuer_enabled = true. Default true."
+  type        = bool
+  default     = true
+}
+
+variable "role_based_access_control_enabled" {
+  description = "Enable Kubernetes RBAC. Default true."
+  type        = bool
+  default     = true
 }
