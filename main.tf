@@ -38,13 +38,9 @@ resource "azurerm_kubernetes_cluster" "this" {
     temporary_name_for_rotation  = var.default_node_pool.temporary_name_for_rotation
   }
 
-  # Node provisioning profile (Manual by default, Auto = Node Auto Provisioning).
-  dynamic "node_provisioning_profile" {
-    for_each = var.node_provisioning_profile == null ? [] : [var.node_provisioning_profile]
-
-    content {
-      mode = node_provisioning_profile.value.mode
-    }
+  # Node provisioning profile
+  node_provisioning_profile {
+    mode = var.node_provisioning_profile.mode
   }
 
   # Identity OR service principal (exactly one, enforced by precondition).

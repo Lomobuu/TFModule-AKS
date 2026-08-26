@@ -52,20 +52,17 @@ variable "default_node_pool" {
 }
 
 variable "node_provisioning_profile" {
-  description = "Node provisioning profile. mode = \"Manual\" (default) or \"Auto\" for Node Auto Provisioning (NAP/Karpenter). Auto mode requires network_plugin = azure + overlay."
+  description = "Node provisioning profile. mode = 'Manual' (default) or 'Auto' (Node Auto Provisioning)."
   type = object({
-    mode = optional(string, "Manual")
+    mode = string
   })
-  default = {}
+  default  = { mode = "Manual" }
+  nullable = false
 
-validation {
-  condition = (
-    var.node_provisioning_profile == null
-    ? true
-    : contains(["Manual", "Auto"], var.node_provisioning_profile.mode)
-  )
-  error_message = "node_provisioning_profile.mode must be either \"Manual\" or \"Auto\"."
-}
+  validation {
+    condition     = contains(["Manual", "Auto"], var.node_provisioning_profile.mode)
+    error_message = "node_provisioning_profile.mode must be either \"Manual\" or \"Auto\"."
+  }
 }
 
 ### DNS: exactly one of the two (required)
