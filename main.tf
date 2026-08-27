@@ -19,6 +19,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   role_based_access_control_enabled = var.role_based_access_control_enabled
 
   # System / default node pool (required).
+  # TODO: Check structure, defaults and things to include
   default_node_pool {
     name    = var.default_node_pool.name
     vm_size = var.default_node_pool.vm_size
