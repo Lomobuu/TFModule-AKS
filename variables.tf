@@ -65,6 +65,17 @@ variable "node_provisioning_profile" {
   }
 }
 
+### Upgrade settings (resets every run if not provided)
+
+variable "upgrade_settings" {
+  type = object({
+    max_surge                     = optional(string, "10%")
+    drain_timeout_in_minutes      = optional(number, 0)
+    node_soak_duration_in_minutes = optional(number, 0)
+  })
+  default = {}
+}
+
 ### DNS: exactly one of the two (required)
 
 variable "dns_prefix" {
@@ -163,7 +174,6 @@ variable "sku_tier" {
     error_message = "sku_tier must be one of: Free, Standard, Premium."
   }
 }
-
 
 ### Entra ID (AAD) integration for Kubernetes RBAC
 

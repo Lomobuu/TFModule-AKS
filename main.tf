@@ -39,6 +39,13 @@ resource "azurerm_kubernetes_cluster" "this" {
     only_critical_addons_enabled = var.default_node_pool.only_critical_addons_enabled
     orchestrator_version         = var.default_node_pool.orchestrator_version
     temporary_name_for_rotation  = var.default_node_pool.temporary_name_for_rotation
+
+
+    upgrade_settings {
+      max_surge                     = var.upgrade_settings.max_surge
+      drain_timeout_in_minutes      = var.upgrade_settings.drain_timeout_in_minutes
+      node_soak_duration_in_minutes = var.upgrade_settings.node_soak_duration_in_minutes
+    }
   }
 
   # Node provisioning profile
@@ -75,6 +82,8 @@ resource "azurerm_kubernetes_cluster" "this" {
       azure_rbac_enabled     = azure_active_directory_role_based_access_control.value.azure_rbac_enabled
     }
   }
+
+
 
   # Key Vault Secrets Provider (CSI) add-on. Optional, default on.
   dynamic "key_vault_secrets_provider" {
